@@ -1,0 +1,696 @@
+<header> "Ojol.h"
+
+#ifndef HEADER_H_INCLUDED
+#define HEADER_H_INCLUDED
+
+#include <iostream>
+#include "stdlib.h"
+
+using namespace std;
+
+#define info(P) (P)->info
+#define first(L) (L).first
+#define last(L) (L).last
+#define next(P) (P)->next
+#define prev(P) (P)->prev
+#define pesanan(P) (P)->pesanan
+#define penumpang(P) (P)->penumpang
+#define Prestasi(P) (P)->Prestasi
+
+typedef struct elmOjol *adrOjol;
+typedef struct elmPenumpang *adrPenumpang;
+typedef struct elmPesanan *adrPesanan;
+
+
+// ADT OJOL
+struct Ojol {
+    string idOjol;
+    string nama;
+};
+
+struct elmOjol {
+    Ojol info;
+    adrOjol next;
+    adrOjol prev;
+    adrPesanan pesanan;
+};
+
+struct CDLLOjol{
+    adrOjol first;
+    adrOjol last;
+};
+// ADT OJOL
+
+
+// ADT PENUMPANG
+struct Penumpang {
+    string idPenumpang;
+    string nama;
+};
+
+struct elmPenumpang {
+    Penumpang info;
+    adrPenumpang next;
+    adrPenumpang prev;
+};
+
+struct DLLPenumpang{
+    adrPenumpang first;
+    adrPenumpang last;
+};
+// ADT PENUMPANG
+
+
+//ADT PESANAN
+struct Pesanan{
+    string idPesanan;
+    string tanggal;
+    string idPenumpang;
+    string idOjol;
+};;
+
+struct elmPesanan {
+    Pesanan info;
+    adrPenumpang penumpang;
+    adrPesanan next;
+};
+// ADT PESANAN
+
+//Method Ojol
+void createList_Ojol(CDLLOjol &ListOjol);
+adrOjol new_elmOjol(string idOjol, string nama);
+void insertLast_Ojol(CDLLOjol &ListOjol, adrOjol p); //Insert data ojol dari belakang (5)
+void deleteFirst_Ojol(CDLLOjol &ListOjol, adrOjol &p);
+void deleteLast_Ojol(CDLLOjol &ListOjol, adrOjol &p);
+void deleteAfter_Ojol(CDLLOjol &ListOjol, adrOjol prec, adrOjol &p);
+void delete_Ojol(CDLLOjol &ListOjol, string idOjol, adrOjol &p); //Menghapus data ojol beserta relasinya (15)
+adrOjol search_Ojol(CDLLOjol ListOjol, string idOjol); //Mencari data ojol (5)
+void show_Ojol(CDLLOjol ListOjol); //Show all data ojol (5)
+//Method Ojol
+
+
+//Method Penumpang
+void createList_Penumpang(DLLPenumpang &ListPenumpang);
+adrPenumpang new_elmPenumpang(string idPenumpang, string nama);
+void insertLast_Penumpang(DLLPenumpang &ListPenumpang, adrPenumpang p); //Menambahkan data penumpang (5)
+adrPenumpang search_Penumpang(DLLPenumpang &ListPenumpang, string idPenumpang); //Mencari data penumpang (5)
+//Method Penumpang
+
+
+//Method Pesanan
+void insertPesanan(CDLLOjol &ListOjol, DLLPenumpang ListPenumpang, adrPesanan p); //Menghubungkan data ojol ke data penumpang (5)
+adrPesanan new_elmPesanan(string idPesanan, string tanggal, string idOjol, string idPenumpang) ;
+void showAllPesanan(CDLLOjol ListOjol); //Menampilkan seluruh data ojol beserta penumpangnya (15)
+void showPesanan(CDLLOjol ListOjol, string idOjol); //Mencari data penumpang pada ojol tertentu (10)
+void deleteFirst_Pesanan(CDLLOjol &ListOjol, adrOjol ojol, adrPesanan &p);
+void deleteLast_Pesanan(CDLLOjol &ListOjol, adrOjol ojol, adrPesanan &p);
+void deleteAfter_Pesanan(CDLLOjol &ListOjol, adrPesanan prec, adrPesanan &p);
+void deletePesanan(CDLLOjol &ListOjol, string idPesanan, adrPesanan &p); //Menghapus data penumpang pada ojol tertentu beserta relasinya (15)
+void showPesananOnDay(CDLLOjol ListOjol, string idPenumpang, string tanggal); //Menampilkan jumlah ojol yang dipesan seorang penumpang dalam satu hari (5)
+//Method Pesanan
+
+
+#endif // HEADER_H_INCLUDED
+
+<Ojol.cpp>
+
+#include "ojol.h"
+
+//Method Ojol
+void createList_Ojol(CDLLOjol &ListOjol)
+{
+    first(ListOjol) = NULL;
+    last(ListOjol) = NULL;
+}
+
+adrOjol new_elmOjol(string idOjol, string nama)
+{
+    adrOjol p = new elmOjol;
+    info(p).idOjol = idOjol;
+    info(p).nama = nama;
+    next(p) = NULL;
+    prev(p) = NULL;
+    pesanan(p) = NULL;
+    return p;
+}
+
+void insertLast_Ojol(CDLLOjol &ListOjol, adrOjol p) //Insert data ojol dari belakang (5)
+{
+    if (first(ListOjol) == NULL && last(ListOjol) == NULL){
+        next(p) = p;
+        prev(p) = p;
+        first(ListOjol) = p;
+        last(ListOjol) = p;
+    } else {
+        next(p) = first(ListOjol);
+        prev(p) = last(ListOjol);
+        next(last(ListOjol)) = p;
+        prev(first(ListOjol)) = p;
+        last(ListOjol) = p;
+    }
+}
+
+void deleteFirst_Ojol(CDLLOjol &ListOjol, adrOjol &p)
+{
+    if (next(first(ListOjol)) == first(ListOjol)){
+        p = first(ListOjol);
+        next(p) = NULL;
+        prev(p) = NULL;
+        first(ListOjol) = NULL;
+        last(ListOjol) = NULL;
+    } else {
+        p = first(ListOjol);
+        first(ListOjol) = next(p);
+        next(last(ListOjol)) = first(ListOjol);
+        prev(first(ListOjol)) = last(ListOjol);
+        next(p) = NULL;
+        prev(p) = NULL;
+    }
+}
+
+void deleteLast_Ojol(CDLLOjol &ListOjol, adrOjol &p)
+{
+    if (next(first(ListOjol)) == first(ListOjol)){
+        p = first(ListOjol);
+        next(p) = NULL;
+        prev(p) = NULL;
+        first(ListOjol) = NULL;
+        last(ListOjol) = NULL;
+    } else {
+        p = last(ListOjol);
+        last(ListOjol) = prev(p);
+        next(last(ListOjol)) = first(ListOjol);
+        prev(first(ListOjol)) = last(ListOjol);
+        next(p) = NULL;
+        prev(p) = NULL;
+    }
+}
+
+void deleteAfter_Ojol(CDLLOjol &ListOjol, adrOjol prec, adrOjol &p)
+{
+    p = next(prec);
+    next(prec) = next(p);
+    prev(next(p)) = prec;
+    next(p) = NULL;
+    prev(p) = NULL;
+}
+
+void delete_Ojol(CDLLOjol &ListOjol, string idOjol, adrOjol &p) //Menghapus data ojol beserta relasinya (15)
+{
+    adrOjol q = search_Ojol(ListOjol, idOjol);
+    if(q != NULL)
+    {
+        if(q == first(ListOjol))
+        {
+            deleteFirst_Ojol(ListOjol, p);
+        }
+        else if (q == last(ListOjol))
+        {
+            deleteLast_Ojol(ListOjol, p);
+        }
+        else
+        {
+            adrOjol r = first(ListOjol);
+            while(next(r) != first(ListOjol))
+            {
+                if(next(r) == q)
+                {
+                    deleteAfter_Ojol(ListOjol, r, p);
+                }
+                r = next(r);
+            }
+        }
+    }
+}
+
+adrOjol search_Ojol(CDLLOjol ListOjol, string idOjol) //Mencari data ojol (5)
+{
+    adrOjol p = first(ListOjol);
+    while(next(p) != first(ListOjol))
+    {
+        if(info(p).idOjol == idOjol)
+        {
+            return p;
+        }
+        p = next(p);
+    }
+    return NULL;
+}
+
+void show_Ojol(CDLLOjol ListOjol) //Show all data ojol (5)
+{
+    adrOjol p = first(ListOjol);
+    int i = 1;
+    cout << " ======= LIST OJOL =======" << endl;
+    while(next(p) != first(ListOjol))
+    {
+        cout << "[" << i << "]" << endl;
+        cout << "ID Ojol     : "<< info(p).idOjol << endl;
+        cout << "Nama Ojol   : "<< info(p).nama << endl;
+        p = next(p);
+        i++;
+    }
+    cout << endl;
+}
+//Method Ojol
+
+
+//Method Penumpang
+void createList_Penumpang(DLLPenumpang &ListPenumpang)
+{
+    first(ListPenumpang) = NULL;
+    last(ListPenumpang) = NULL;
+}
+adrPenumpang new_elmPenumpang(string idPenumpang, string nama)
+{
+    adrPenumpang p = new elmPenumpang;
+    info(p).idPenumpang = idPenumpang;
+    info(p).nama = nama;
+    next(p) = NULL;
+    prev(p) = NULL;
+    return p;
+}
+void insertLast_Penumpang(DLLPenumpang &ListPenumpang, adrPenumpang p) //Menambahkan data penumpang (5)
+{
+    if (first(ListPenumpang) == NULL && last(ListPenumpang) == NULL){
+        first(ListPenumpang) = p;
+        last(ListPenumpang) = p;
+    } else {
+        prev(p) = last(ListPenumpang);
+        next(last(ListPenumpang)) = p;
+        last(ListPenumpang) = p;
+    }
+}
+
+adrPenumpang search_Penumpang(DLLPenumpang &ListPenumpang, string idPenumpang) //Mencari data penumpang (5)
+{
+    adrPenumpang p = first(ListPenumpang);
+    while(next(p) != first(ListPenumpang))
+    {
+        if(info(p).idPenumpang == idPenumpang)
+        {
+            return p;
+        }
+        p = next(p);
+    }
+    return NULL;
+}
+//Method Penumpang
+
+
+//Method Pesanan
+adrPesanan new_elmPesanan(string idPesanan, string tanggal, string idOjol, string idPenumpang)
+{
+    adrPesanan p = new elmPesanan;
+    info(p).idPesanan = idPesanan;
+    info(p).tanggal = tanggal;
+    info(p).idOjol = idOjol;
+    info(p).idPenumpang = idPenumpang;
+    next(p) = NULL;
+    penumpang(p) = NULL;
+    return p;
+}
+
+void insertPesanan(CDLLOjol &ListOjol, DLLPenumpang ListPenumpang, adrPesanan p) //Menghubungkan data ojol ke data penumpang (5)
+{
+    adrOjol ojol = search_Ojol(ListOjol, info(p).idOjol);
+    adrPenumpang penumpang = search_Penumpang(ListPenumpang, info(p).idPenumpang);
+
+    if(ojol != NULL && penumpang != NULL){
+        penumpang(p) = penumpang;
+        if(pesanan(ojol) == NULL)
+        {
+            pesanan(ojol) = p;
+        }
+        else
+        {
+            adrPesanan q = pesanan(ojol);
+            while(next(q) != NULL)
+            {
+                q = next(q);
+            }
+            next(q) = p;
+        }
+    }
+}
+
+void showAllPesanan(CDLLOjol ListOjol) //Menampilkan seluruh data ojol beserta penumpangnya (15)
+{
+    adrOjol ojol = first(ListOjol);
+    int i = 1;
+
+    while(next(ojol) != first(ListOjol))
+    {
+        int u = 1;
+        cout << "[" << i << "]" << endl;
+        cout << "ID Ojol : "<< info(ojol).idOjol << "\t Nama Ojol : " << info(ojol).nama <<endl;
+        adrPesanan pesanan = pesanan(ojol);
+        if(pesanan != NULL)
+        {
+            cout << "===================================================================================" << endl;
+            cout << "No.     ID Pesanan \t Tanggal Pesanan \t ID Ojol \t ID Penumpang \t Nama Penumpang" << endl;
+            while(pesanan != NULL)
+            {
+                cout << u << "       " << info(pesanan).idPesanan << "\t\t " << info(pesanan).tanggal << "\t\t " << info(pesanan).idOjol << "\t\t "<< info(pesanan).idPenumpang<< "\t\t "<< info(penumpang(pesanan)).nama<< endl;
+                pesanan = next(pesanan);
+                u++;
+            }
+        }
+        else
+        {
+            cout << "Ojol ini tidak memiliki pesanan !" << endl;
+        }
+        i++;
+        ojol = next(ojol);
+        cout << endl;
+    }
+}
+
+void showPesanan(CDLLOjol ListOjol, string idOjol) //Mencari data penumpang pada ojol tertentu (10)
+{
+    adrOjol ojol = search_Ojol(ListOjol, idOjol);
+
+
+    cout << "ID Ojol : "<< info(ojol).idOjol << "\t Nama Ojol : " << info(ojol).nama <<endl;
+    adrPesanan pesanan = pesanan(ojol);
+    if(pesanan != NULL)
+    {
+        int u = 1;
+        cout << "===================================================================================" << endl;
+        cout << "No.     ID Pesanan \t Tanggal Pesanan \t ID Ojol \t ID Penumpang \t Nama Penumpang" << endl;
+        while(pesanan != NULL)
+        {
+            cout << u << "       " << info(pesanan).idPesanan << "\t\t " << info(pesanan).tanggal << "\t\t " << info(pesanan).idOjol << "\t\t "<< info(pesanan).idPenumpang<< "\t\t "<< info(penumpang(pesanan)).nama<<endl;
+            pesanan = next(pesanan);
+            u++;
+        }
+    }
+    else
+    {
+        cout << "Ojol ini tidak memiliki pesanan !" << endl;
+    }
+}
+
+void deleteFirst_Pesanan(CDLLOjol &ListOjol, adrOjol ojol, adrPesanan &p)
+{
+    if(next(pesanan(ojol)) == NULL)
+    {
+        p = pesanan(ojol);
+        pesanan(ojol) = NULL;
+    }
+    else
+    {
+        p = pesanan(ojol);
+        pesanan(ojol) = next(p);
+        next(p) = NULL;
+    }
+}
+
+void deleteLast_Pesanan(CDLLOjol &ListOjol, adrOjol ojol, adrPesanan &p)
+{
+    if(next(pesanan(ojol)) == NULL)
+    {
+        p = pesanan(ojol);
+        pesanan(ojol) = NULL;
+    }
+    else
+    {
+        adrPesanan q = pesanan(ojol);
+        while(next(next(q)) != NULL)
+        {
+            q = next(q);
+        }
+        p = next(q);
+        next(q) = NULL;
+    }
+}
+
+void deleteAfter_Pesanan(CDLLOjol &ListOjol, adrPesanan prec, adrPesanan &p)
+{
+    p = next(prec);
+    next(prec) = next(p);
+    next(p) = NULL;
+}
+
+void deletePesanan(CDLLOjol &ListOjol, string idPesanan, adrPesanan &p) //Menghapus data penumpang pada ojol tertentu beserta relasinya (15)
+{
+    adrOjol ojol = first(ListOjol);
+    bool deleted = false;
+    while(next(ojol) != first(ListOjol))
+    {
+        adrPesanan pesanan = pesanan(ojol);
+        if (pesanan != NULL)
+        {
+            if (info(pesanan).idPesanan == idPesanan)
+            {
+                deleteFirst_Pesanan(ListOjol, ojol, p);
+            }
+            while(next(pesanan) != NULL)
+            {
+                if(info(next(pesanan)).idPesanan == idPesanan)
+                {
+                    deleteAfter_Pesanan(ListOjol, pesanan, p);
+                    deleted = true;
+                    break;
+                }
+
+                pesanan = next(pesanan);
+            }
+        }
+        ojol = next(ojol);
+    }
+}
+
+void showPesananOnDay(CDLLOjol ListOjol, string idPenumpang, string tanggal) //Menampilkan jumlah ojol yang dipesan seorang penumpang dalam satu hari (5)
+{
+    adrOjol ojol = first(ListOjol);
+    cout << "Pesanan ID Penumpang "<< idPenumpang<< " pada tanggal " << tanggal <<endl;
+    cout << "===================================================================================" << endl;
+    cout << "No.     ID Pesanan \t Tanggal Pesanan \t ID Ojol \t ID Penumpang \t Nama Penumpang" << endl;
+    while(next(ojol) != first(ListOjol))
+    {
+        int u = 1;
+
+        adrPesanan pesanan = pesanan(ojol);
+        if(pesanan != NULL)
+        {
+
+            while(pesanan != NULL)
+            {
+                if (info(pesanan).idPenumpang == idPenumpang && info(pesanan).tanggal == tanggal)
+                {
+                    cout << u << "       " << info(pesanan).idPesanan << "\t\t " << info(pesanan).tanggal << "\t\t " << info(pesanan).idOjol << "\t\t " << info(pesanan).idPenumpang<< "\t\t "<< info(penumpang(pesanan)).nama<< endl;
+                }
+
+                pesanan = next(pesanan);
+                u++;
+            }
+        }
+        ojol = next(ojol);
+    }
+
+}
+//Method Pesanan
+
+<Main.cpp>
+
+#include "ojol.h"
+
+using namespace std;
+
+int main() //MAIN PROGRAM (10)
+{
+
+    // Inisiasi list ojol
+    CDLLOjol ListOjol;
+    createList_Ojol(ListOjol);
+    adrOjol ojol;
+    adrPenumpang penumpang;
+    adrPesanan pesanan;
+    string nama, tanggal, idOjol, idPenumpang, idPesanan;
+
+    //Insert data ojol dari belakang (5)
+    insertLast_Ojol(ListOjol, new_elmOjol("0", "Ojol 0"));
+    insertLast_Ojol(ListOjol, new_elmOjol("1", "Ojol 1"));
+    insertLast_Ojol(ListOjol, new_elmOjol("2", "Ojol 2"));
+    insertLast_Ojol(ListOjol, new_elmOjol("3", "Ojol 3"));
+    insertLast_Ojol(ListOjol, new_elmOjol("4", "Ojol 4"));
+    insertLast_Ojol(ListOjol, new_elmOjol("ASD", "Ojol ASD"));
+    insertLast_Ojol(ListOjol, new_elmOjol("5", "Ojol 5"));
+    insertLast_Ojol(ListOjol, new_elmOjol("6", "Ojol 6"));
+    insertLast_Ojol(ListOjol, new_elmOjol("7", "Ojol 7"));
+
+    // Menghapus data ojol beserta relasinya (15)
+    delete_Ojol(ListOjol, "0", ojol);
+    delete_Ojol(ListOjol, "ASD", ojol);
+    delete_Ojol(ListOjol, "7", ojol);
+
+    //Show all data ojol (5)
+    cout<< "\n ================ MENAMPILKAN LIST OJOL ================ \n"<< endl;
+    show_Ojol(ListOjol);
+
+    //Mencari data ojol (5)
+    //Mencari data ojol dengan id = 4
+    ojol = search_Ojol(ListOjol, "4");
+    cout<< "\n\n ================ MENAMPILKAN DATA SUATU OJOL ================ \n"<< endl;
+    cout << "ID Ojol     : "<< info(ojol).idOjol << endl;
+    cout << "Nama Ojol   : "<< info(ojol).nama << "\n\n";
+
+
+    //Inisiasi list penumpang
+    DLLPenumpang ListPenumpang;
+    createList_Penumpang(ListPenumpang);
+
+    //Menambahkan data penumpang (5)
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("1", "Penumpang 1"));
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("2", "Penumpang 2"));
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("3", "Penumpang 3"));
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("4", "Penumpang 4"));
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("5", "Penumpang 5"));
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("6", "Penumpang 6"));
+    insertLast_Penumpang(ListPenumpang, new_elmPenumpang("7", "Penumpang 7"));
+
+    //Mencari data penumpang (5)
+    penumpang = search_Penumpang(ListPenumpang, "4");
+    cout<< "\n\n ================ MENAMPILKAN DATA SUATU PENUMPANG ================ \n"<< endl;
+    cout << "ID Penumpang     : "<< info(penumpang).idPenumpang << endl;
+    cout << "Nama Penumpang   : "<< info(penumpang).nama << "\n\n";
+
+    //Menghubungkan data ojol ke data penumpang (5)
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("1","15-12-2022","1","3"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("2","17-12-2022","1","5"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("3","18-12-2022","1","6"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("4","18-12-2022","1","1"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("5","16-12-2022","2","1"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("6","16-12-2022","2","2"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("7","17-12-2022","2","4"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("8","18-12-2022","2","7"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("9","18-12-2022","3","1"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("10","19-12-2022","3","6"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("11","16-12-2022","4","1"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("12","16-12-2022","4","2"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("13","16-12-2022","4","3"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("14","17-12-2022","4","5"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("15","18-12-2022","4","6"));
+    insertPesanan(ListOjol, ListPenumpang, new_elmPesanan("16","20-12-2022","6","2"));
+
+
+    //Menampilkan seluruh data ojol beserta penumpangnya (15)
+    cout<< "\n\n ================ MENAMPILKAN SEMUA OJOL BESERTA PESANANNYA ================ \n"<< endl;
+    showAllPesanan(ListOjol);
+
+    //Mencari data penumpang pada ojol tertentu (10)
+    //Menampilkan data penumpang pada ojol dengan id = 4
+    cout<< "\n\n ================ MENAMPILKAN SUATU OJOL BESERTA PESANANNYA ================ \n"<< endl;
+    showPesanan(ListOjol, "4");
+
+    //Menghapus data penumpang pada ojol tertentu beserta relasinya (15)
+    //Mencoba untuk menghapus pesanan dengan id = 5, 8, dan 13
+
+    deletePesanan(ListOjol, "5", pesanan);
+    deletePesanan(ListOjol, "8", pesanan);
+    deletePesanan(ListOjol, "13", pesanan);
+
+    cout<< "\n\n ================ LIST SETELAH PESANAN DIHAPUS ================ \n"<< endl;
+    showAllPesanan(ListOjol);
+
+    //Menampilkan jumlah ojol yang dipesan seorang penumpang dalam satu hari (5)
+    cout<< "\n\n ================ PESANAN SUATU PENUMPANG DI SATU HARI ================ \n"<< endl;
+    showPesananOnDay(ListOjol, "6", "18-12-2022");
+
+    cout << "\n\n\n";
+    int n = 1;
+    while (n != 0) {
+        cout << "========== MENU ==========" << endl;
+        cout << "1. Insert Ojol" << endl;
+        cout << "2. Insert Penumpang" << endl;
+        cout << "3. Insert Pesanan" << endl;
+        cout << "4. Delete Suatu Ojol" << endl;
+        cout << "5. Delete Suatu Pesanan" << endl;
+        cout << "6. Show List Ojol" << endl;
+        cout << "7. Show List Ojol Beserta Pesanannya" << endl;
+        cout << "8. Show Pesanan Suatu Ojol" << endl;
+        cout << "9. Show Pesanan Suatu Penumpang Dalam Satu Hari" << endl;
+        cout << "0. Selesai" << endl;
+        cout << "Pilihan menu : ";
+        cin >> n ;
+        switch(n) {
+    case 1 :
+        system("CLS");
+        cout << "\nMasukkan ID ojol   : ";
+        cin >> idOjol;
+        cout << "Masukkan Nama ojol : ";
+        cin >> nama;
+        insertLast_Ojol(ListOjol, new_elmOjol(idOjol, nama));
+        cout << endl;
+        break;
+    case 2:
+        system("CLS");
+        cout << "\nMasukkan ID penumpang   : ";
+        cin >> idPesanan;
+        cout << "Masukkan Nama penumpang : ";
+        cin >> nama;
+        insertLast_Penumpang(ListPenumpang, new_elmPenumpang(idPesanan, nama));
+        cout << endl;
+        break;
+    case 3:
+        system("CLS");
+        cout << endl;
+        cout << "Masukkan ID pesanan                     : ";
+        cin >> idPesanan;
+        cout << "Masukkan tanggal pesanan (DD-MM-YYYY)   : ";
+        cin >> tanggal;
+        cout << "Masukkan ID ojol                        : ";
+        cin >> idOjol;
+        cout << "Masukkan ID penumpang   : ";
+        cin >> idPenumpang;
+        insertPesanan(ListOjol, ListPenumpang, new_elmPesanan(idPesanan, tanggal, idOjol, idPenumpang));
+        cout << endl;
+        break;
+    case 4:
+        system("CLS");
+        cout << "\nMasukkan ID ojol   : ";
+        cin >> idOjol;
+        delete_Ojol(ListOjol, idOjol, ojol);
+        cout << endl;
+        break;
+    case 5:
+        system("CLS");
+        cout << "\nMasukkan ID pesanan   : ";
+        cin >> idPesanan;
+        deletePesanan(ListOjol, idPesanan, pesanan);
+        cout << endl;
+        break;
+    case 6:
+        system("CLS");
+        cout << endl;
+        show_Ojol(ListOjol);
+        cout << endl;
+        break;
+    case 7 :
+        system("CLS");
+        cout << endl;
+        showAllPesanan(ListOjol);
+        cout << endl;
+        break;
+    case 8 :
+        system("CLS");
+        cout << "\nMasukkan ID ojol   : ";
+        cin >> idOjol;
+        showPesanan(ListOjol, idOjol);
+        cout << endl;
+        break;
+    case 9 :
+        system("CLS");
+        cout << endl;
+        cout << "Masukkan ID penumpang            : ";
+        cin >> idPenumpang;
+        cout << "Masukkan tanggal (DD-MM-YYYY)    : ";
+        cin >> tanggal;
+        showPesananOnDay(ListOjol, idPenumpang, tanggal);
+        cout << endl;
+        break;
+        }
+    }
+    return 0;
+}
